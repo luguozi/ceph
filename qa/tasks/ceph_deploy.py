@@ -245,6 +245,7 @@ def build_ceph_cluster(ctx, config):
         mon_hostname = mon_nodes.split(' ')[0]
         mon_hostname = str(mon_hostname)
         gather_keys = './ceph-deploy gatherkeys' + " " + mon_hostname
+        push_keys = './ceph-deploy admin' + " " + mon_nodes
         deploy_mds = './ceph-deploy mds create' + " " + mds_nodes
         no_of_osds = 0
 
@@ -294,6 +295,9 @@ def build_ceph_cluster(ctx, config):
         # are taking way more than a minute/monitor to form quorum, so lets
         # try the next block which will wait up to 15 minutes to gatherkeys.
         execute_ceph_deploy(mon_create_nodes)
+        # workaround for missing admin keys on kraken and master
+        # tracker for all the details - http://tracker.ceph.com/issues/17352
+        execute_ceph_deploy(push_keys)
 
         estatus_gather = execute_ceph_deploy(gather_keys)
         max_gather_tries = 90
